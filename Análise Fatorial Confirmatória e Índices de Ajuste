@@ -1,0 +1,25 @@
+#Instalar os pacotes - Caso não tenha:
+
+install.packages(lavaan)
+install.packages(semTools)
+
+#Ler os pacotes:
+
+library(lavaan)
+library(semTools)
+
+#Definir o modelo fatorial:
+
+modelo <-'
+F1 =~ item1 + item2 + item3
+F2 =~ item4 + item5 + item6
+' 
+
+modelofit <- cfa(modelo,
+data = dados,
+estimator = "WLSMV", ordered = T)
+
+#Apresentar os dados e Índices de Ajuste:
+
+summary(modelofit, rsquare = T, standardized = T )
+fitmeasures(modelofit)
