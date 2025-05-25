@@ -1,0 +1,71 @@
+#Instalar os pacotes - Caso não tenha:
+
+install.packages(lavaan)
+install.packages(semTools)
+
+#Ler os pacotes:
+
+library(lavaan)
+library(semTools)
+
+#Definir o modelo fatorial:
+
+modelo <-'
+F1 =~ item1 + item2 + item3
+F2 =~ item4 + item5 + item6
+' 
+
+modelofit <- cfa(modelo,
+data = dados,
+estimator = "WLSMV", ordered = T)
+
+#Apresentar os dados e Índices de Ajuste:
+
+summary(modelofit, rsquare = T, standardized = T )
+fitmeasures(modelofit)
+
+#Invariância configural (modelo1):
+fit_config <- cfa(modelo, data = dados, group = "grupo")
+summary(fit_config, fit.measures = TRUE, standardized = TRUE)
+fitMeasures(fit_config, c("cfi", "tli", "rmsea", "srmr", "chisq", "df", "pvalue"))
+
+#Testando a invariância métrica (modelo2)
+fit_metrica <- cfa (modelo, data = dados, group = "grupo" group.equal= "loadings" ) 
+summary(fit_metrica, fit.measures = true, standardized = TRUE) 
+fitMeasures(fit_metrica, c("cfi", "tli", "rmsea", "srmr", "chisq", "df", "pvalue"))
+
+#Testando a invariância escalar (modelo3)
+fit_escalar <- cfa (modelo, data = dados, group = "grupo" group.equal= "loadings" , "intercepts") 
+summary(fit_escalar, fit.measures = true, standardized = TRUE) 
+fitMeasures(fit_escalar, c("cfi", "tli", "rmsea", "srmr", "chisq", "df", "pvalue"))
+
+#Testando a invariância residual (modelo4)
+fit_residual <- cfa (modelo, data = dados, group = "grupo" group.equal= "loadings" , "intercepts", "residuals") 
+summary(fit_residual, fit.measures = true, standardized = TRUE) 
+fitMeasures(fit_residual, c("cfi", "tli", "rmsea", "srmr", "chisq", "df", "pvalue"))
+
+#Esses quatro primeiros falam sobre o teste, a partir de agora vamos trabalhar sobre as diferenças
+amostrais (relacionados à população)
+
+#Testando a invariância estrutural (modelo5)
+fit_estrutural <- cfa (modelo, data = dados, group = "grupo" group.equal= "loadings" , "intercepts", "residuals", "lv.variances", "lv.covariances") 
+summary(fit_estrutural, fit.measures = true, standardized = TRUE) 
+fitMeasures(fit_estrutural, c("cfi", "tli", "rmsea", "srmr", "chisq", "df", "pvalue"))
+
+#Testando a invariância da média latente (modelo6)
+fit_media <- cfa (modelo, data = dados, group = "grupo" group.equal= "loadings" , "intercepts", "residuals", "lv.variances", "lv.covariances", "means") 
+summary(fit_media, fit.measures = true, standardized = TRUE) 
+fitMeasures(fit_media, c("cfi", "tli", "rmsea", "srmr", "chisq", "df", "pvalue"))
+
+#Comparando os modelos de forma separada:
+anova(fit_config, fit_metrica, fit_escalar, fit_residual, fit_estrutural, fit_media) #para ver grande parte dos índices de ajuste
+
+#para configurar os CFIs
+fitMeasures(fit_config, "cfi")
+fitMeasures(fit_metrica, "cfi")
+fitMeasures(fit_escalar, "cfi")
+fitMeasures(fit_residual, "cfi")
+fitMeasures(fit_estrutural, "cfi")
+fitMeasures(fit_media, "cfi")
+
+#Bibliografia Utilizada: Damásio, B. F.. (2013). Contribuições da Análise Fatorial Confirmatória Multigrupo (AFCMG) na avaliação de invariância de instrumentos psicométricos. Psico-usf, 18(2), 211–220. https://doi.org/10.1590/S1413-82712013000200005
