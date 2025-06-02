@@ -1,0 +1,155 @@
+#Instalando
+install.packages("lavaan")
+install.packages("semPlot")
+
+
+#Modelo Unidimensional
+library(lavaan)
+library(semPlot)
+library(semTools)
+
+
+modelo_uni <- '
+F1 =~ MRI1 + MRI2 + MRI3 + MRI4 + MRI5 + MRI6 + MRI7 + MRI8 + MRI9 + MRI10 +
+       MRI11 + MRI12 + MRI13 + MRI14 + MRI15 + MRI16 + MRI17 + MRI18 + MRI19 +
+       MRI20 + MRI21 + MRI22
+'
+
+ajuste_uni <- cfa(modelo_uni, data = Banco_MRIFATORES_5_a_12_1_, estimator = "DWLS",
+                  ordered=T)
+summary(ajuste_uni, fit.measures = TRUE, standardized = TRUE)
+
+#Plotar os resultados Unidimensional
+semPaths(ajuste_uni,
+         what = "std",         # Mostra pesos padronizados
+         whatLabels = "std",   # Mostra os valores nas setas
+         layout = "tree",      # Deixa os fatores no topo
+         rotation = 2,         # Ajusta a rotação
+         sizeMan = 4,          # Tamanho dos itens
+         sizeLat = 8,          # Tamanho dos fatores
+         edge.label.cex = 0.8, # Tamanho dos números nas setas
+         residuals = TRUE,     # Mostra os resíduos (erros dos itens)
+         intercepts = FALSE,   # Oculta os interceptos
+         nCharNodes = 0)       # Mostra nome completo dos itens
+
+#Modelo Correlacionado
+modelo_corr <- '
+Vuln =~ MRI5 + MRI9 + MRI15 + MRI21
+Cop =~  MRI7 + MRI11 + MRI14
+IE =~ MRI3 + MRI10 + MRI18 + MRI22
+BES =~ MRI1 + MRI4 + MRI17
+LC =~ MRI8 + MRI12 + MRI13 + MRI19 + MRI20
+HB =~ MRI2 + MRI6 + MRI16
+'
+ajuste_corr <- cfa(modelo_corr, data = Banco_MRIFATORES_5_a_12_1_, estimator = "DWLS", ordered = T )
+summary(ajuste_corr, fit.measures = TRUE, standardized = TRUE)
+
+
+#Plotar os resultados Correlacionado
+semPaths(ajuste_corr,
+         what = "std",         # Mostra pesos padronizados
+         whatLabels = "std",   # Mostra os valores nas setas
+         layout = "tree",      # Deixa os fatores no topo
+         rotation = 1,         # Ajusta a rotação
+         sizeMan = 4,          # Tamanho dos itens
+         sizeLat = 7,          # Tamanho dos fatores
+         edge.label.cex = 0.9, # Tamanho dos números nas setas
+         residuals = TRUE,     # Mostra os resíduos (erros dos itens)
+         intercepts = FALSE,   # Oculta os interceptos
+         nCharNodes = 0)       # Mostra nome completo dos itens
+
+#Modelo Bifactor
+modelo_bifactor <- '
+Geral =~ MRI1 + MRI2 + MRI3 + MRI4 + MRI5 + MRI6 + MRI7 + MRI8 + MRI9 + MRI10 +
+         MRI11 + MRI12 + MRI13 + MRI14 + MRI15 + MRI16 + MRI17 + MRI18 + MRI19 +
+         MRI20 + MRI21 + MRI22
+
+Vuln =~ MRI5 + MRI9+ MRI15 + MRI21
+Cop =~  MRI7 + MRI11 + MRI14
+IE =~ MRI3 + MRI10 + MRI18 + MRI22
+BES =~ MRI1 + MRI4 + MRI17
+LC =~ MRI8 + MRI12 + MRI13 + MRI19 + MRI20
+HB =~ MRI2 + MRI6 + MRI16
+
+Geral ~~ 0*Vuln + 0*Cop + 0*IE + 0*BES + 0*LC +0*HB
+Vuln ~~ 0*Cop + 0*IE + 0*BES + 0*LC + 0*HB
+Cop ~~ 0*IE + 0*BES + 0*LC + 0*HB
+IE ~~ 0*BES + 0*LC + 0*HB
+BES ~~ 0*LC + 0*HB
+LC ~~ 0*HB
+'
+
+
+
+ajuste_bifactor <- cfa(modelo_bifactor, 
+                           data = Banco_MRIFATORES_5_a_12_1_, 
+                           estimator = "DWLS", 
+                           orthogonal=TRUE)
+
+summary(ajuste_bifactor, fit.measures = TRUE, standardized = TRUE)
+
+
+#Tentando solucionar o erro: 
+#Testando se o modelo roda sem zerar as covariâncias dos fatores específicos:
+
+modelo_bifactor_sem_cov <- '
+Geral =~ MRI1 + MRI2 + MRI3 + MRI4 + MRI6 + MRI7 + MRI8 + MRI10 +
+         MRI11 + MRI12 + MRI13 + MRI14 + MRI15 + MRI16 + MRI17 + MRI18 + MRI19 +
+         MRI20 + MRI21 + MRI22
+
+Vuln =~ MRI15 + MRI21
+Cop =~  MRI7 + MRI11 + MRI14
+IE =~ MRI3 + MRI10 + MRI18 + MRI22
+BES =~ MRI1 + MRI4 + MRI17
+LC =~ MRI8 + MRI12 + MRI13 + MRI19 + MRI20
+HB =~ MRI2 + MRI6 + MRI16
+'
+
+ajuste_bifactor_sem_cov <- cfa(modelo_bifactor_sem_cov, 
+                               data = Banco_MRIFATORES_5_a_12_1_, 
+                               estimator = "DWLS", 
+                               ordered = TRUE)
+
+summary(ajuste_bifactor_sem_cov, fit.measures = TRUE, standardized = TRUE)
+
+
+
+ajuste_bifactor <- cfa(modelo_bifactor, data = Banco_MRIFATORES_5_a_12_1_, orthogonal =TRUE, std.lv = TRUE)
+summary(ajuste_bifactor, fit.measures = TRUE, standardized = TRUE)
+
+
+#Plotar os resultados Bifactor
+semPaths(ajuste_bifactor,
+         what = "std",         # Mostra pesos padronizados
+         whatLabels = "std",   # Mostra os valores nas setas
+         layout = "tree",      # Deixa os fatores no topo
+         rotation = 2,         # Ajusta a rotação
+         sizeMan = 4,          # Tamanho dos itens
+         sizeLat = 7,          # Tamanho dos fatores
+         edge.label.cex = 0.9, # Tamanho dos números nas setas
+         residuals = TRUE,     # Mostra os resíduos (erros dos itens)
+         intercepts = FALSE,   # Oculta os interceptos
+         nCharNodes = 0)       # Mostra nome completo dos itens
+
+#modelo de Segunda Ordem: 
+modelo_segunda_ordem <- ' 
+
+
+Vuln =~ MRI5 + MRI9 + MRI15 + MRI21
+Cop =~  MRI7 + MRI11 + MRI14
+IE =~ MRI3 + MRI10 + MRI18 + MRI22
+BES =~ MRI1 + MRI4 + MRI17
+LC =~ MRI8 + MRI12 + MRI13 + MRI19 + MRI20
+HB =~ MRI2 + MRI6 + MRI16
+
+Geral =~ MRI1 + MRI2 + MRI3 + MRI4 + MRI5 + MRI6 + MRI7 + MRI8 + MRI9 + MRI10 +
+         MRI11 + MRI12 + MRI13 + MRI14 + MRI15 + MRI16 + MRI17 + MRI18 + MRI19 +
+         MRI20 + MRI21 + MRI22 
+'
+ajuste_segunda_ordem <- cfa(modelo_segunda_ordem,  
+                            data = Banco_MRIFATORES_5_a_12_1_, 
+                            estimator = "DWLS", 
+                            ordered = TRUE)
+
+summary(ajuste_segunda_ordem, fit.measures = TRUE, standardized = TRUE)
+
