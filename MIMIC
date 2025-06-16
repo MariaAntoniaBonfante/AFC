@@ -1,0 +1,50 @@
+#Instalar os pacotes - Caso não possua:  
+
+install.packages("lavaan") 
+
+install.packages("semTools") 
+
+
+
+#Ler os pacotes: 
+
+library(lavaan) 
+
+library(semPlot)
+
+#Ler os dados 
+
+library(readxl) 
+
+banco_exercicio_AFC <- read_excel("XXXXXX") #Inserir o caminho do seu computador até o banco. 
+
+View(banco_exercicio_AFC) 
+
+
+#Construindo o modelo 
+
+modelo <- ' 
+
+  F1 =~ Item_1+ Item_2+ Item_3 + Item_4 + Item_5 + Item_6 + Item_7 + Item_8 + Item_9 + Item_10 
+  F1 ~ Sexo
+  Item_3 + Item_7 + Item_10 ~ Sexo
+  #Item_1+ Item_2 + Item_4 + Item_5 + Item_6 + Item_8 + Item_9 +
+  '  
+
+
+
+
+
+modelofit <- sem(modelo, 
+                 
+                 data = banco_exercicio_AFC, 
+                 
+                 estimator = "WLSMV", ordered = T)  
+
+
+
+summary(modelofit, rsquare = T, standardized = T ) 
+
+fitmeasures(modelofit) 
+semPaths(modelofit, what = "paths", whatLabels = "standardized")
+semPaths(modelofit)
